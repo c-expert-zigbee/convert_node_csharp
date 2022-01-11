@@ -47,6 +47,7 @@ namespace LPR_CSharp
          
         string setRenewInterval = null;
         string nl = "\r\n";
+        NetworkCredential networkCredential;
         public LprCamera(Dictionary<string, string> lprCamera)
         {
             this.setProperties(lprCamera);
@@ -55,6 +56,10 @@ namespace LPR_CSharp
             tries = 1;
             connectionInterval = 1;
             connection = false;
+            networkCredential = new NetworkCredential(userName, password);
+            handler = new HttpClientHandler() { Credentials = networkCredential };
+            _httpClient = new HttpClient(handler);
+
         }
         public void setProperties(Dictionary<string, string> lprCamera)
         {
@@ -204,13 +209,15 @@ namespace LPR_CSharp
                 Console.WriteLine("Cannot get longPolling port from camera: " + this.name);
             }
         }
-
-        private readonly HttpClient _httpClient = new HttpClient();
+        HttpClientHandler handler;
+        private  HttpClient _httpClient = new HttpClient();
         public async Task<string> callAPI(string apiPath)
         {
+           
             var url = "http://" + this.ip + ":" + this.port + "/" + apiPath;
             var html = await _httpClient.GetStringAsync(url);
             return html.ToString();
+            
         }
 
         public void SetTimer1()
@@ -310,8 +317,12 @@ namespace LPR_CSharp
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(data);
             string jsonResponse = JsonConvert.SerializeXmlNode(doc, Newtonsoft.Json.Formatting.Indented);
-            var jsonObj = JObject.Parse(jsonResponse);
-            longPollingPort = jsonObj["config"]["port"]["longPollingPort"]["_text"].ToString();
+            dynamic jsonObj = JObject.Parse(jsonResponse);
+            var config = jsonObj.config;
+            var port=jsonObj.ToString();
+            //var 
+            
+            longPollingPort = jsonObj["config"]["port"]["longPollingPort"]["#text"].ToString();
         }
 
         public void updateStatus(string newStatus)
