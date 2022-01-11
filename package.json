@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "name": "lprasp.net",
+  "private": true,
+  "devDependencies": {
+    "axios": "^0.24.0",
+    "xml-js": "^1.6.11",
+    "winston": "^2.4.0"
+  }
+}
